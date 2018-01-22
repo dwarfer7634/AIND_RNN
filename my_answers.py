@@ -2,6 +2,8 @@ import numpy as np
 
 from keras.models import Sequential
 from keras.layers import Dense
+from string import ascii_lowercase
+
 from keras.layers import LSTM
 import keras
 
@@ -12,7 +14,15 @@ def window_transform_series(series, window_size):
     # containers for input/output pairs
     X = []
     y = []
-
+    
+    for i in range(len(series) - window_size):
+        y.append(series[i + window_size])
+        
+        each_input = []
+        for j in range(window_size):
+            each_input.append(series[i + j])
+        X.append(each_input)
+            
     # reshape each 
     X = np.asarray(X)
     X.shape = (np.shape(X)[0:2])
@@ -23,13 +33,24 @@ def window_transform_series(series, window_size):
 
 # TODO: build an RNN to perform regression on our time series input/output data
 def build_part1_RNN(window_size):
-    pass
+    model = Sequential()
+    model.add(LSTM(5, input_shape=(window_size, 1)))
+    model.add(Dense(1))
+    
+    return model
 
 
 ### TODO: return the text input with only ascii lowercase and the punctuation given below included.
 def cleaned_text(text):
     punctuation = ['!', ',', '.', ':', ';', '?']
-
+    
+    original_text = text
+    text = ''
+    
+    available_chars = set(ascii_lowercase) | set(punctuation)
+    for i in range(len(original_text)):
+        if original_text[i] in available_chars:
+            text += original_text[i]
     return text
 
 ### TODO: fill out the function below that transforms the input text and window-size into a set of input/output pairs for use with our RNN model
@@ -37,7 +58,14 @@ def window_transform_text(text, window_size, step_size):
     # containers for input/output pairs
     inputs = []
     outputs = []
-
+    
+    for i in range(0, len(text) - window_size, step_size):
+        #nput_tmp = []
+        for j in range(window_size):
+            inputs.append(text[i + j])
+            #nput_tmp.append(text[i + j])
+        #nputs.append(input_tmp)
+        outputs.append(text[i + window_size])
     return inputs,outputs
 
 # TODO build the required RNN model: 
