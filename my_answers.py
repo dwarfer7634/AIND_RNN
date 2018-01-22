@@ -1,7 +1,7 @@
 import numpy as np
 
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Activation, Dense
 from string import ascii_lowercase
 
 from keras.layers import LSTM
@@ -47,7 +47,7 @@ def cleaned_text(text):
     original_text = text
     text = ''
     
-    available_chars = set(ascii_lowercase) | set(punctuation)
+    available_chars = set(ascii_lowercase) | set(punctuation) | set([' '])
     for i in range(len(original_text)):
         if original_text[i] in available_chars:
             text += original_text[i]
@@ -60,15 +60,15 @@ def window_transform_text(text, window_size, step_size):
     outputs = []
     
     for i in range(0, len(text) - window_size, step_size):
-        #nput_tmp = []
-        for j in range(window_size):
-            inputs.append(text[i + j])
-            #nput_tmp.append(text[i + j])
-        #nputs.append(input_tmp)
+        inputs.append(text[i : i + window_size])
         outputs.append(text[i + window_size])
     return inputs,outputs
 
 # TODO build the required RNN model: 
 # a single LSTM hidden layer with softmax activation, categorical_crossentropy loss 
 def build_part2_RNN(window_size, num_chars):
-    pass
+    model = Sequential()
+    model.add(LSTM(200, input_shape=(window_size, num_chars)))
+    model.add(Dense(num_chars))
+    model.add(Activation('softmax'))
+    return model
